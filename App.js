@@ -6,9 +6,10 @@ import { theme } from './color'
 export default function App() {
 
   const [working, setWorking] = useState(true);
+  const [text, setText] = useState("");
   const travel = () => setWorking(false);
   const work = () => setWorking(true);
-
+  const onChangeText = (payload) => setText(payload);
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
@@ -22,7 +23,12 @@ export default function App() {
         </TouchableWithoutFeedback>
       </View>
       <View>
-        <TextInput returnKeyType="done" placeholder={working ? "Add a To Do" : "Where do you want to go?"} style={styles.input}/>
+        <TextInput 
+        onChangeText={onChangeText}
+        value={text}
+        returnKeyType="done" 
+        placeholder={working ? "Add a To Do" : "Where do you want to go?"} 
+        style={styles.input}/>
       </View>
     </View>
   );
