@@ -1,11 +1,12 @@
 import React, {useState, useEffect} from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TouchableOpacity, TouchableHighlight, TouchableWithoutFeedback, Pressable, TextInput, ScrollView, Alert } from 'react-native';
-// import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Fontisto } from '@expo/vector-icons'; 
 import { theme } from './color'
 
 const STORAGE_KEY="@toDos"
+const START_KEY="@Start"
 
 export default function App() {
 
@@ -13,16 +14,24 @@ export default function App() {
   const [text, setText] = useState("");
   const [toDos, setToDos] = useState({});
 
-  const travel = () => setWorking(false);
-  const work = () => setWorking(true);
+  const travel = async() => {
+    setWorking(false);
+    await AsyncStorage.setItem(START_KEY, false);
+  };
+  const work = async() => {
+    setWorking(true);
+    await AsyncStorage.setItem(START_KEY, true);
+  };
   const onChangeText = (payload) => setText(payload);
   const saveToDos = async(toSave) => {
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave))
-  };
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave))};
   const loadToDos = async() => {
     try{
       const s = await AsyncStorage.getItem(STORAGE_KEY)
-      setToDos(JSON.parse(s));
+      const s1 = await AsyncStorage.getItem(START_KEY)
+      setWorking(JSON.parse(s1 || true));
+      setToDos(JSON.parse(s || '{}'));
+      console.log(s)
     } catch (e) {
       console.log(e)
     }
@@ -49,6 +58,7 @@ export default function App() {
         delete newToDos[key];
         setToDos(newToDos);
         await saveToDos(newToDos);
+        console.log(await AsyncStorage.getItem(STORAGE_KEY));
       }}
     ])
     
