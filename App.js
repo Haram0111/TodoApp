@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TouchableOpacity, TouchableHighlight, TouchableWithoutFeedback, Pressable, TextInput, ScrollView, Alert } from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { CheckBox } from 'react-native';
+import { Checkbox } from 'react-native-paper';
 import { Fontisto } from '@expo/vector-icons'; 
 import { theme } from './color'
 
@@ -10,7 +10,7 @@ const STORAGE_KEY="@toDos"
 const START_KEY="@Start"
 
 export default function App() {
-  const [toggleCheckBox, setToggleCheckBox] = useState(false)
+  const [checked, setChecked] = React.useState(false);
   const [working, setWorking] = useState(true);
   const [text, setText] = useState("");
   const [toDos, setToDos] = useState({});
@@ -83,17 +83,18 @@ export default function App() {
         value={text}
         returnKeyType="done" 
         placeholder={working ? "Add a To Do" : "Where do you want to go?"} 
-        style={styles.input}/>        
+        style={styles.input}/>
       </View>
       <ScrollView>{
         Object.keys(toDos).map((key) =>
           toDos[key].working === working ?(
           <View style={styles.toDo} key={key}>
             <Text style={styles.toDoText} >{toDos[key].text}</Text>
-            <CheckBox
-              disabled={false}
-              value={toggleCheckBox}
-              onValueChange={(newValue) => setToggleCheckBox(newValue)}
+            <Checkbox
+              status={checked ? 'checked' : 'unchecked'}
+              onPress={() => {
+                setChecked(!checked);
+              }}
             />
             <TouchableOpacity onPress={()=> deleteTodo(key)}>
               <Fontisto name="trash" size={16} color="white" />
