@@ -10,7 +10,7 @@ const STORAGE_KEY="@toDos"
 const START_KEY="@Start"
 
 export default function App() {
-  const [checked, setChecked] = React.useState(false);
+  const [checked, setChecked] = useState(false);
   const [working, setWorking] = useState(true);
   const [text, setText] = useState("");
   const [toDos, setToDos] = useState({});
@@ -25,13 +25,13 @@ export default function App() {
   };
   const onChangeText = (payload) => setText(payload);
   const saveToDos = async(toSave) => {
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave))};
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave), checked)};
   const loadToDos = async() => {
     try{
-      const s = await AsyncStorage.getItem(STORAGE_KEY)
-      const s1 = await AsyncStorage.getItem(START_KEY)
-      setWorking(JSON.parse(s1 || true));
-      setToDos(JSON.parse(s || '{}'));
+      const s = await AsyncStorage.getItem(STORAGE_KEY);
+      const s1 = await AsyncStorage.getItem(START_KEY);
+      setWorking(JSON.parse(s1 || true)); 
+      setToDos(JSON.parse(s || '{}')); 
       console.log(s)
     } catch (e) {
       console.log(e)
@@ -45,7 +45,7 @@ export default function App() {
       return;
     }
     const newToDos = Object.assign({}, toDos, {
-      [Date.now()] : {text, working},});
+      [Date.now()] : {text, working, checked},});
     setToDos(newToDos);
     await saveToDos(newToDos);
     setText("");
@@ -62,8 +62,16 @@ export default function App() {
         console.log(await AsyncStorage.getItem(STORAGE_KEY));
       }}
     ])
-    
   }
+  
+  const checkTodo = async(key) => {
+    const newToDos = {...toDos};
+    newToDos[key].checked === true ? newToDos[key].checked = false : newToDos[key].checked = true;
+    setToDos(newToDos);
+    await saveToDos(newToDos);
+  }
+
+  
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
@@ -89,13 +97,13 @@ export default function App() {
         Object.keys(toDos).map((key) =>
           toDos[key].working === working ?(
           <View style={styles.toDo} key={key}>
-            <Text style={styles.toDoText} >{toDos[key].text}</Text>
-            <Checkbox
-              status={checked ? 'checked' : 'unchecked'}
-              onPress={() => {
-                setChecked(!checked);
-              }}
-            />
+            <View style={styles.flexs}>
+              <Checkbox
+                status={toDos[key].checked ? 'checked' : 'unchecked'}
+                onPress={()=> checkTodo(key)}
+              />
+              <Text style={styles.toDoText}>{toDos[key].text}</Text>
+            </View>            
             <TouchableOpacity onPress={()=> deleteTodo(key)}>
               <Fontisto name="trash" size={16} color="white" />
             </TouchableOpacity>
@@ -145,4 +153,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
+  flexs: {
+    flexDirection: 'row',
+  }
 });
